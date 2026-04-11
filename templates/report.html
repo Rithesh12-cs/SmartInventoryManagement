@@ -1,0 +1,56 @@
+ <!-- ==================== REPORTS PAGE ==================== -->
+  <div class="page" id="page-reports">
+    <div class="page-intro">
+      <h1>Reports & Analytics</h1>
+      <p>Deep-dive into inventory performance, trends, and ML model insights.</p>
+    </div>
+    <div class="report-tabs">
+      <button class="rtab active" onclick="showReport('performance', this)">Performance</button>
+      <button class="rtab" onclick="showReport('turnover', this)">Turnover</button>
+      <button class="rtab" onclick="showReport('supplier', this)">Supplier</button>
+      <button class="rtab" onclick="showReport('ml', this)">ML Insights</button>
+    </div>
+    <!-- Performance Report -->
+    <div class="report-content active" id="report-performance">
+      <div class="report-kpi-row">
+        <div class="r-kpi"><span>$284K</span><small>Total Revenue (MTD)</small><div class="rk-change up">↑ 14.2%</div></div>
+        <div class="r-kpi"><span>92.3%</span><small>Order Fill Rate</small><div class="rk-change up">↑ 1.8%</div></div>
+        <div class="r-kpi"><span>4.7 days</span><small>Avg Lead Time</small><div class="rk-change down">↓ 0.3d</div></div>
+        <div class="r-kpi"><span>$8,420</span><small>Holding Cost</small><div class="rk-change up">↑ 5.1%</div></div>
+      </div>
+      <div class="report-charts">
+        <div class="chart-panel wide"><div class="panel-hdr"><h3>Monthly Revenue & Orders</h3></div><canvas id="revenueChart" height="200"></canvas></div>
+        <div class="chart-panel"><div class="panel-hdr"><h3>Top Products by Sales</h3></div><canvas id="topProductsChart" height="200"></canvas></div>
+      </div>
+    </div>
+    <!-- Turnover Report -->
+    <div class="report-content" id="report-turnover">
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-hdr"><h3>Inventory Turnover Rate</h3><p>How often inventory is sold and replaced</p></div>
+        <canvas id="turnoverChart" height="220"></canvas>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table" id="turnoverTable">
+          <thead><tr><th>Product</th><th>COGS ($)</th><th>Avg Inventory ($)</th><th>Turnover Rate</th><th>Days Sales Inventory</th><th>Performance</th></tr></thead>
+          <tbody id="turnoverTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Supplier Report -->
+    <div class="report-content" id="report-supplier">
+      <div class="report-charts">
+        <div class="chart-panel"><div class="panel-hdr"><h3>Supplier Performance</h3></div><canvas id="supplierChart" height="220"></canvas></div>
+        <div class="chart-panel"><div class="panel-hdr"><h3>Lead Time Distribution</h3></div><canvas id="leadTimeChart" height="220"></canvas></div>
+      </div>
+    </div>
+    <!-- ML Insights -->
+    <div class="report-content" id="report-ml">
+      <div class="ml-insights-grid" id="mlInsightsGrid"></div>
+      <div class="panel" style="margin-top:20px">
+        <div class="panel-hdr"><h3>Model Accuracy Over Time</h3></div>
+        <canvas id="mlAccuracyChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end dash-main -->

@@ -1,0 +1,46 @@
+ <!-- ==================== ALERTS PAGE ==================== -->
+<div class="page" id="page-alerts">
+    <div class="page-intro">
+      <h1>Alerts & Notifications</h1>
+      <p>Stay ahead of inventory issues with intelligent, automated alerts.</p>
+    </div>
+    <div class="alerts-config">
+      <div class="panel alerts-settings">
+        <h3>Alert Configuration</h3>
+        <div class="config-list">
+          <div class="config-item">
+            <div><span class="cfg-label">Low Stock Threshold</span><small>Alert when stock falls below reorder level</small></div>
+            <div class="toggle-wrap"><input type="range" min="5" max="30" value="10" id="lowStockThreshold" oninput="updateThresholdLabel(this,'lowThreshLabel')"><span id="lowThreshLabel">10 units</span></div>
+          </div>
+          <div class="config-item">
+            <div><span class="cfg-label">Critical Stock Alert</span><small>Urgent alert for near-zero stock</small></div>
+            <div class="toggle-wrap"><input type="range" min="1" max="10" value="3" id="criticalThreshold" oninput="updateThresholdLabel(this,'critThreshLabel')"><span id="critThreshLabel">3 units</span></div>
+          </div>
+          <div class="config-item">
+            <div><span class="cfg-label">Email Notifications</span><small>Receive alerts via email</small></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="config-item">
+            <div><span class="cfg-label">Forecast Deviation Alert</span><small>Alert when demand deviates >20% from forecast</small></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="config-item">
+            <div><span class="cfg-label">Auto Reorder Trigger</span><small>Automatically create PO when stock hits threshold</small></div>
+            <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+      </div>
+      <div class="panel alerts-summary-panel">
+        <h3>Alert Summary</h3>
+        <div id="alertSummary" class="alert-summary-grid"></div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:20px">
+      <div class="panel-hdr"><h3>Active Alerts</h3><button class="btn-ghost sm" onclick="clearAlerts()">Clear all</button></div>
+      <div class="alerts-list" id="alertsList"></div>
+    </div>
+    <div class="panel" style="margin-top:20px">
+      <div class="panel-hdr"><h3>Notification History</h3></div>
+      <div class="alerts-list" id="notifHistory"></div>
+    </div>
+  </div>

@@ -1,0 +1,54 @@
+  <!-- ==================== USER MANAGEMENT PAGE ==================== -->
+<div class="page" id="page-users">
+    <div class="page-intro">
+      <h1>User Management</h1>
+      <p>Control access, roles and permissions for your team.</p>
+    </div>
+    <div class="action-bar">
+      <div class="search-wrap sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" placeholder="Search users..." id="userSearch" oninput="filterUsers()"></div>
+      <select class="mini-select" id="roleFilter" onchange="filterUsers()"><option value="all">All roles</option><option value="admin">Admin</option><option value="manager">Manager</option><option value="viewer">Viewer</option></select>
+      <select class="mini-select" id="statusFilterU" onchange="filterUsers()"><option value="all">All status</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+      <button class="btn-primary" onclick="openUserModal()">+ Add User</button>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="userTable">
+        <thead><tr><th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th><th>User</th><th>Role</th><th>Department</th><th>Last Login</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="userTableBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="userPagination"></div>
+    <!-- User Modal -->
+    <div class="modal-overlay" id="userModal">
+      <div class="modal">
+        <div class="modal-hdr"><h3 id="modalTitle">Add New User</h3><button class="modal-close" onclick="closeUserModal()">✕</button></div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="field"><label>Full Name</label><input type="text" id="uName" placeholder="John Smith"></div>
+            <div class="field"><label>Email</label><input type="email" id="uEmail" placeholder="john@company.com"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Role</label>
+              <select id="uRole"><option>Admin</option><option>Manager</option><option>Viewer</option></select>
+            </div>
+            <div class="field"><label>Department</label>
+              <select id="uDept"><option>Operations</option><option>Procurement</option><option>Sales</option><option>IT</option><option>Finance</option></select>
+            </div>
+          </div>
+          <div class="field"><label>Permissions</label>
+            <div class="perm-grid">
+              <label class="perm-item"><input type="checkbox" checked> View Inventory</label>
+              <label class="perm-item"><input type="checkbox" checked> Edit Products</label>
+              <label class="perm-item"><input type="checkbox"> Manage Users</label>
+              <label class="perm-item"><input type="checkbox" checked> View Reports</label>
+              <label class="perm-item"><input type="checkbox"> Export Data</label>
+              <label class="perm-item"><input type="checkbox"> ML Settings</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-ghost" onclick="closeUserModal()">Cancel</button>
+          <button class="btn-primary" onclick="saveUser()">Save User</button>
+        </div>
+      </div>
+    </div>
+  </div>

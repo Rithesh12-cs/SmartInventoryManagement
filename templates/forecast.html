@@ -1,0 +1,73 @@
+ <!-- ==================== FORECAST PAGE ==================== -->
+  
+<div class="page" id="page-forecast">
+    <div class="page-intro">
+      <h1>Demand Forecasting <span class="ml-badge">ML Powered</span></h1>
+      <p>LSTM + ARIMA ensemble model predicting future demand with 98.4% accuracy.</p>
+    </div>
+    <div class="forecast-controls">
+      <div class="fc-control">
+        <label>Select Product</label>
+        <select id="forecastProduct" onchange="updateForecast()">
+          <option value="0">Bluetooth Speaker</option>
+          <option value="1">USB-C Charger</option>
+          <option value="2">Laptop Stand</option>
+          <option value="3">Wireless Mouse</option>
+          <option value="4">Mechanical Keyboard</option>
+        </select>
+      </div>
+      <div class="fc-control">
+        <label>Forecast Horizon</label>
+        <select id="forecastHorizon" onchange="updateForecast()">
+          <option value="7">7 days</option>
+          <option value="14">14 days</option>
+          <option value="30">30 days</option>
+          <option value="90">90 days</option>
+        </select>
+      </div>
+      <div class="fc-control">
+        <label>ML Model</label>
+        <select id="forecastModel" onchange="updateForecast()">
+          <option value="ensemble">Ensemble (LSTM+ARIMA)</option>
+          <option value="lstm">LSTM Neural Net</option>
+          <option value="arima">ARIMA</option>
+          <option value="prophet">Prophet</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="runForecast()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 3 19 12 5 21 5 3"/></svg>
+        Run Forecast
+      </button>
+    </div>
+    <div class="forecast-grid">
+      <div class="chart-panel forecast-main">
+        <div class="panel-hdr">
+          <div><h3 id="forecastTitle">Bluetooth Speaker — Demand Forecast</h3><p>Historical demand + ML prediction with confidence intervals</p></div>
+          <div class="forecast-accuracy-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span id="forecastAccBadge">98.4% accuracy</span>
+          </div>
+        </div>
+        <canvas id="forecastChart" height="220"></canvas>
+      </div>
+      <div class="forecast-side">
+        <div class="panel forecast-metrics">
+          <h3>Forecast Metrics</h3>
+          <div class="metric-list" id="forecastMetrics"></div>
+        </div>
+        <div class="panel">
+          <h3>Reorder Recommendation</h3>
+          <div class="reorder-rec" id="reorderRec"></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:20px">
+      <div class="panel-hdr"><h3>All Products Forecast Summary</h3><p>Next 30-day ML predictions</p></div>
+      <div class="data-table-wrap">
+        <table class="data-table" id="forecastTable">
+          <thead><tr><th>Product</th><th>Current Stock</th><th>Predicted Demand (30d)</th><th>Stockout Risk</th><th>Recommended Reorder</th><th>Confidence</th></tr></thead>
+          <tbody id="forecastTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
