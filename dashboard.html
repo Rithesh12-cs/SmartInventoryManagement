@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexStock AI — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="dash-body">
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-brand">
+      <div class="brand-icon-sm">
+        <svg width="20" height="20" viewBox="0 0 28 28" fill="none"><rect x="2" y="2" width="11" height="11" rx="3" fill="white"/><rect x="15" y="2" width="11" height="11" rx="3" fill="white" opacity="0.5"/><rect x="2" y="15" width="11" height="11" rx="3" fill="white" opacity="0.5"/><rect x="15" y="15" width="11" height="11" rx="3" fill="white"/></svg>
+      </div>
+      <span>NexStock<sup>AI</sup></span>
+    </div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item active" data-page="overview" onclick="showPage('overview')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Overview</span>
+    </a>
+    <a class="nav-item" data-page="users" onclick="showPage('users')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>User Management</span>
+      <span class="nav-badge">4</span>
+    </a>
+    <a class="nav-item" data-page="inventory" onclick="showPage('inventory')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      <span>Inventory</span>
+    </a>
+    <a class="nav-item" data-page="forecast" onclick="showPage('forecast')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Demand Forecast</span>
+      <span class="nav-badge accent">ML</span>
+    </a>
+    <a class="nav-item" data-page="alerts" onclick="showPage('alerts')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span>Alerts</span>
+      <span class="nav-badge red">3</span>
+    </a>
+    <div class="nav-section-label">Analytics</div>
+    <a class="nav-item" data-page="reports" onclick="showPage('reports')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Reports & Analytics</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="user-avatar">A</div>
+      <div class="user-info"><span class="user-name">Admin User</span><span class="user-role">Administrator</span></div>
+      <button class="logout-btn" onclick="window.location.href='login.html'" title="Sign out">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- Main content -->
+<div class="dash-main" id="dashMain">
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="page-title" id="pageTitle">Overview</div>
+      <div class="breadcrumb" id="breadcrumb">Dashboard / Overview</div>
+    </div>
+    <div class="topbar-right">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search anything..." id="globalSearch">
+      </div>
+      <button class="topbar-btn" onclick="showPage('alerts')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="topbar-badge">3</span>
+      </button>
+      <div class="topbar-avatar">A</div>
+    </div>
+  </header>
+
+  <!-- ==================== OVERVIEW PAGE ==================== -->
+  <div class="page active" id="page-overview">
+    <div class="page-intro">
+      <h1>Good morning, Admin <span class="wave">👋</span></h1>
+      <p>Here's your inventory intelligence summary for today.</p>
+    </div>
+    <!-- KPI Row -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+        <div class="kpi-body"><span class="kpi-val" data-target="248">0</span><span class="kpi-label">Total Products</span></div>
+        <div class="kpi-trend up">↑ 12%</div>
+      </div>
+      <div class="kpi-card kpi-orange">
+        <div class="kpi-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="kpi-body"><span class="kpi-val" data-target="18">0</span><span class="kpi-label">Low Stock Items</span></div>
+        <div class="kpi-trend down">↑ 3</div>
+      </div>
+      <div class="kpi-card kpi-green">
+        <div class="kpi-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="kpi-body"><span class="kpi-val" data-target="984" data-suffix="%">0</span><span class="kpi-label">Forecast Accuracy</span></div>
+        <div class="kpi-trend up">↑ 2.1%</div>
+      </div>
+      <div class="kpi-card kpi-purple">
+        <div class="kpi-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <div class="kpi-body"><span class="kpi-val" data-prefix="$" data-target="142600">0</span><span class="kpi-label">Inventory Value</span></div>
+        <div class="kpi-trend up">↑ 8.3%</div>
+      </div>
+    </div>
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <div class="chart-panel wide">
+        <div class="panel-hdr">
+          <div><h3>Demand Trend vs Forecast</h3><p>Last 30 days — ML model predictions vs actual</p></div>
+          <div class="hdr-actions">
+            <select class="mini-select" onchange="updateDemandChart(this.value)">
+              <option value="30">30 days</option>
+              <option value="60">60 days</option>
+              <option value="90">90 days</option>
+            </select>
+          </div>
+        </div>
+        <canvas id="demandChart" height="200"></canvas>
+      </div>
+      <div class="chart-panel">
+        <div class="panel-hdr"><h3>Stock Status</h3><p>Distribution across categories</p></div>
+        <canvas id="stockDonut" height="200"></canvas>
+        <div class="donut-legend" id="donutLegend"></div>
+      </div>
+    </div>
+    <!-- Bottom row -->
+    <div class="bottom-row">
+      <div class="panel">
+        <div class="panel-hdr"><h3>Top Performing Categories</h3></div>
+        <div class="category-bars" id="categoryBars"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><h3>Recent Activity</h3><a class="see-all" onclick="showPage('reports')">See all</a></div>
+        <div class="activity-feed" id="activityFeed"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><h3>ML Model Status</h3></div>
+        <div class="ml-status-list" id="mlStatusList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== USER MANAGEMENT PAGE ==================== -->
+  <div class="page" id="page-users">
+    <div class="page-intro">
+      <h1>User Management</h1>
+      <p>Control access, roles and permissions for your team.</p>
+    </div>
+    <div class="action-bar">
+      <div class="search-wrap sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" placeholder="Search users..." id="userSearch" oninput="filterUsers()"></div>
+      <select class="mini-select" id="roleFilter" onchange="filterUsers()"><option value="all">All roles</option><option value="admin">Admin</option><option value="manager">Manager</option><option value="viewer">Viewer</option></select>
+      <select class="mini-select" id="statusFilterU" onchange="filterUsers()"><option value="all">All status</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+      <button class="btn-primary" onclick="openUserModal()">+ Add User</button>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="userTable">
+        <thead><tr><th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th><th>User</th><th>Role</th><th>Department</th><th>Last Login</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="userTableBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="userPagination"></div>
+    <!-- User Modal -->
+    <div class="modal-overlay" id="userModal">
+      <div class="modal">
+        <div class="modal-hdr"><h3 id="modalTitle">Add New User</h3><button class="modal-close" onclick="closeUserModal()">✕</button></div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="field"><label>Full Name</label><input type="text" id="uName" placeholder="John Smith"></div>
+            <div class="field"><label>Email</label><input type="email" id="uEmail" placeholder="john@company.com"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Role</label>
+              <select id="uRole"><option>Admin</option><option>Manager</option><option>Viewer</option></select>
+            </div>
+            <div class="field"><label>Department</label>
+              <select id="uDept"><option>Operations</option><option>Procurement</option><option>Sales</option><option>IT</option><option>Finance</option></select>
+            </div>
+          </div>
+          <div class="field"><label>Permissions</label>
+            <div class="perm-grid">
+              <label class="perm-item"><input type="checkbox" checked> View Inventory</label>
+              <label class="perm-item"><input type="checkbox" checked> Edit Products</label>
+              <label class="perm-item"><input type="checkbox"> Manage Users</label>
+              <label class="perm-item"><input type="checkbox" checked> View Reports</label>
+              <label class="perm-item"><input type="checkbox"> Export Data</label>
+              <label class="perm-item"><input type="checkbox"> ML Settings</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-ghost" onclick="closeUserModal()">Cancel</button>
+          <button class="btn-primary" onclick="saveUser()">Save User</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== INVENTORY PAGE ==================== -->
+  <div class="page" id="page-inventory">
+    <div class="page-intro">
+      <h1>Inventory Management</h1>
+      <p>Track, update and manage your complete product catalog.</p>
+    </div>
+    <div class="inv-kpi-row">
+      <div class="inv-kpi"><span id="invTotal">248</span><small>Total SKUs</small></div>
+      <div class="inv-kpi"><span id="invLow">18</span><small>Low Stock</small></div>
+      <div class="inv-kpi"><span id="invOut">3</span><small>Out of Stock</small></div>
+      <div class="inv-kpi"><span id="invVal">$142,600</span><small>Total Value</small></div>
+    </div>
+    <div class="action-bar">
+      <div class="search-wrap sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" placeholder="Search products..." id="invSearch" oninput="filterInventory()"></div>
+      <select class="mini-select" id="catFilter" onchange="filterInventory()"><option value="all">All categories</option><option value="Electronics">Electronics</option><option value="Accessories">Accessories</option><option value="Furniture">Furniture</option><option value="Stationery">Stationery</option></select>
+      <select class="mini-select" id="invStatusFilter" onchange="filterInventory()"><option value="all">All status</option><option value="normal">Normal</option><option value="low">Low Stock</option><option value="critical">Critical</option></select>
+      <button class="btn-primary" onclick="openProductModal()">+ Add Product</button>
+      <button class="btn-ghost">↓ Export</button>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="invTable">
+        <thead><tr><th>Product</th><th>SKU</th><th>Category</th><th>Stock</th><th>Reorder Level</th><th>Unit Price</th><th>Status</th><th>ML Forecast</th><th>Actions</th></tr></thead>
+        <tbody id="invTableBody"></tbody>
+      </table>
+    </div>
+    <!-- Product Modal -->
+    <div class="modal-overlay" id="productModal">
+      <div class="modal">
+        <div class="modal-hdr"><h3 id="productModalTitle">Add New Product</h3><button class="modal-close" onclick="closeProductModal()">✕</button></div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="field"><label>Product Name</label><input type="text" id="pName" placeholder="e.g. Wireless Mouse"></div>
+            <div class="field"><label>SKU</label><input type="text" id="pSku" placeholder="SKU-001"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Category</label>
+              <select id="pCat"><option>Electronics</option><option>Accessories</option><option>Furniture</option><option>Stationery</option></select>
+            </div>
+            <div class="field"><label>Unit Price ($)</label><input type="number" id="pPrice" min="0" placeholder="0.00"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Current Stock</label><input type="number" id="pStock" min="0" placeholder="0"></div>
+            <div class="field"><label>Reorder Level</label><input type="number" id="pReorder" min="0" placeholder="10"></div>
+          </div>
+          <div class="field"><label>Supplier</label><input type="text" id="pSupplier" placeholder="Supplier name"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-ghost" onclick="closeProductModal()">Cancel</button>
+          <button class="btn-primary" onclick="saveProduct()">Save Product</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FORECAST PAGE ==================== -->
+  <div class="page" id="page-forecast">
+    <div class="page-intro">
+      <h1>Demand Forecasting <span class="ml-badge">ML Powered</span></h1>
+      <p>LSTM + ARIMA ensemble model predicting future demand with 98.4% accuracy.</p>
+    </div>
+    <div class="forecast-controls">
+      <div class="fc-control">
+        <label>Select Product</label>
+        <select id="forecastProduct" onchange="updateForecast()">
+          <option value="0">Bluetooth Speaker</option>
+          <option value="1">USB-C Charger</option>
+          <option value="2">Laptop Stand</option>
+          <option value="3">Wireless Mouse</option>
+          <option value="4">Mechanical Keyboard</option>
+        </select>
+      </div>
+      <div class="fc-control">
+        <label>Forecast Horizon</label>
+        <select id="forecastHorizon" onchange="updateForecast()">
+          <option value="7">7 days</option>
+          <option value="14">14 days</option>
+          <option value="30">30 days</option>
+          <option value="90">90 days</option>
+        </select>
+      </div>
+      <div class="fc-control">
+        <label>ML Model</label>
+        <select id="forecastModel" onchange="updateForecast()">
+          <option value="ensemble">Ensemble (LSTM+ARIMA)</option>
+          <option value="lstm">LSTM Neural Net</option>
+          <option value="arima">ARIMA</option>
+          <option value="prophet">Prophet</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="runForecast()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 3 19 12 5 21 5 3"/></svg>
+        Run Forecast
+      </button>
+    </div>
+    <div class="forecast-grid">
+      <div class="chart-panel forecast-main">
+        <div class="panel-hdr">
+          <div><h3 id="forecastTitle">Bluetooth Speaker — Demand Forecast</h3><p>Historical demand + ML prediction with confidence intervals</p></div>
+          <div class="forecast-accuracy-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span id="forecastAccBadge">98.4% accuracy</span>
+          </div>
+        </div>
+        <canvas id="forecastChart" height="220"></canvas>
+      </div>
+      <div class="forecast-side">
+        <div class="panel forecast-metrics">
+          <h3>Forecast Metrics</h3>
+          <div class="metric-list" id="forecastMetrics"></div>
+        </div>
+        <div class="panel">
+          <h3>Reorder Recommendation</h3>
+          <div class="reorder-rec" id="reorderRec"></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:20px">
+      <div class="panel-hdr"><h3>All Products Forecast Summary</h3><p>Next 30-day ML predictions</p></div>
+      <div class="data-table-wrap">
+        <table class="data-table" id="forecastTable">
+          <thead><tr><th>Product</th><th>Current Stock</th><th>Predicted Demand (30d)</th><th>Stockout Risk</th><th>Recommended Reorder</th><th>Confidence</th></tr></thead>
+          <tbody id="forecastTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ALERTS PAGE ==================== -->
+  <div class="page" id="page-alerts">
+    <div class="page-intro">
+      <h1>Alerts & Notifications</h1>
+      <p>Stay ahead of inventory issues with intelligent, automated alerts.</p>
+    </div>
+    <div class="alerts-config">
+      <div class="panel alerts-settings">
+        <h3>Alert Configuration</h3>
+        <div class="config-list">
+          <div class="config-item">
+            <div><span class="cfg-label">Low Stock Threshold</span><small>Alert when stock falls below reorder level</small></div>
+            <div class="toggle-wrap"><input type="range" min="5" max="30" value="10" id="lowStockThreshold" oninput="updateThresholdLabel(this,'lowThreshLabel')"><span id="lowThreshLabel">10 units</span></div>
+          </div>
+          <div class="config-item">
+            <div><span class="cfg-label">Critical Stock Alert</span><small>Urgent alert for near-zero stock</small></div>
+            <div class="toggle-wrap"><input type="range" min="1" max="10" value="3" id="criticalThreshold" oninput="updateThresholdLabel(this,'critThreshLabel')"><span id="critThreshLabel">3 units</span></div>
+          </div>
+          <div class="config-item">
+            <div><span class="cfg-label">Email Notifications</span><small>Receive alerts via email</small></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="config-item">
+            <div><span class="cfg-label">Forecast Deviation Alert</span><small>Alert when demand deviates >20% from forecast</small></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="config-item">
+            <div><span class="cfg-label">Auto Reorder Trigger</span><small>Automatically create PO when stock hits threshold</small></div>
+            <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+      </div>
+      <div class="panel alerts-summary-panel">
+        <h3>Alert Summary</h3>
+        <div id="alertSummary" class="alert-summary-grid"></div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:20px">
+      <div class="panel-hdr"><h3>Active Alerts</h3><button class="btn-ghost sm" onclick="clearAlerts()">Clear all</button></div>
+      <div class="alerts-list" id="alertsList"></div>
+    </div>
+    <div class="panel" style="margin-top:20px">
+      <div class="panel-hdr"><h3>Notification History</h3></div>
+      <div class="alerts-list" id="notifHistory"></div>
+    </div>
+  </div>
+
+  <!-- ==================== REPORTS PAGE ==================== -->
+  <div class="page" id="page-reports">
+    <div class="page-intro">
+      <h1>Reports & Analytics</h1>
+      <p>Deep-dive into inventory performance, trends, and ML model insights.</p>
+    </div>
+    <div class="report-tabs">
+      <button class="rtab active" onclick="showReport('performance', this)">Performance</button>
+      <button class="rtab" onclick="showReport('turnover', this)">Turnover</button>
+      <button class="rtab" onclick="showReport('supplier', this)">Supplier</button>
+      <button class="rtab" onclick="showReport('ml', this)">ML Insights</button>
+    </div>
+    <!-- Performance Report -->
+    <div class="report-content active" id="report-performance">
+      <div class="report-kpi-row">
+        <div class="r-kpi"><span>$284K</span><small>Total Revenue (MTD)</small><div class="rk-change up">↑ 14.2%</div></div>
+        <div class="r-kpi"><span>92.3%</span><small>Order Fill Rate</small><div class="rk-change up">↑ 1.8%</div></div>
+        <div class="r-kpi"><span>4.7 days</span><small>Avg Lead Time</small><div class="rk-change down">↓ 0.3d</div></div>
+        <div class="r-kpi"><span>$8,420</span><small>Holding Cost</small><div class="rk-change up">↑ 5.1%</div></div>
+      </div>
+      <div class="report-charts">
+        <div class="chart-panel wide"><div class="panel-hdr"><h3>Monthly Revenue & Orders</h3></div><canvas id="revenueChart" height="200"></canvas></div>
+        <div class="chart-panel"><div class="panel-hdr"><h3>Top Products by Sales</h3></div><canvas id="topProductsChart" height="200"></canvas></div>
+      </div>
+    </div>
+    <!-- Turnover Report -->
+    <div class="report-content" id="report-turnover">
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-hdr"><h3>Inventory Turnover Rate</h3><p>How often inventory is sold and replaced</p></div>
+        <canvas id="turnoverChart" height="220"></canvas>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table" id="turnoverTable">
+          <thead><tr><th>Product</th><th>COGS ($)</th><th>Avg Inventory ($)</th><th>Turnover Rate</th><th>Days Sales Inventory</th><th>Performance</th></tr></thead>
+          <tbody id="turnoverTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Supplier Report -->
+    <div class="report-content" id="report-supplier">
+      <div class="report-charts">
+        <div class="chart-panel"><div class="panel-hdr"><h3>Supplier Performance</h3></div><canvas id="supplierChart" height="220"></canvas></div>
+        <div class="chart-panel"><div class="panel-hdr"><h3>Lead Time Distribution</h3></div><canvas id="leadTimeChart" height="220"></canvas></div>
+      </div>
+    </div>
+    <!-- ML Insights -->
+    <div class="report-content" id="report-ml">
+      <div class="ml-insights-grid" id="mlInsightsGrid"></div>
+      <div class="panel" style="margin-top:20px">
+        <div class="panel-hdr"><h3>Model Accuracy Over Time</h3></div>
+        <canvas id="mlAccuracyChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end dash-main -->
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>
