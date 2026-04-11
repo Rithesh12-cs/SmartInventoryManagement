@@ -374,3 +374,5 @@ button { border:none; cursor:pointer; background:none; }
 ::-webkit-scrollbar { width:5px; height:5px; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:var(--surface2); border-radius:999px; }
+
+canvas { max-height: 280px !important; }
