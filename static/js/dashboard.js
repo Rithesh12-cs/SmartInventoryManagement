@@ -1,288 +1,16 @@
-// ======= DATA =======
-const USERS = [
-  { id:1, name:'Sarah Chen', email:'sarah.chen@nexstock.ai', role:'Admin', dept:'Operations', lastLogin:'2 min ago', status:'active', avatar:'#3b82f6' },
-  { id:2, name:'James Okafor', email:'james.okafor@nexstock.ai', role:'Manager', dept:'Procurement', lastLogin:'1 hour ago', status:'active', avatar:'#10b981' },
-  { id:3, name:'Priya Patel', email:'priya.patel@nexstock.ai', role:'Manager', dept:'Sales', lastLogin:'3 hours ago', status:'active', avatar:'#8b5cf6' },
-  { id:4, name:'Lena Müller', email:'lena.muller@nexstock.ai', role:'Viewer', dept:'Finance', lastLogin:'Yesterday', status:'active', avatar:'#f59e0b' },
-  { id:5, name:'Marcus Reid', email:'marcus.reid@nexstock.ai', role:'Viewer', dept:'IT', lastLogin:'2 days ago', status:'inactive', avatar:'#ef4444' },
-  { id:6, name:'Yuki Tanaka', email:'yuki.tanaka@nexstock.ai', role:'Manager', dept:'Operations', lastLogin:'5 hours ago', status:'active', avatar:'#06b6d4' },
-  { id:7, name:'Diego Flores', email:'diego.flores@nexstock.ai', role:'Viewer', dept:'Procurement', lastLogin:'1 week ago', status:'inactive', avatar:'#ec4899' },
-];
+// ======= IMPORTS FROM MODULES =======
+// api.js: USERS, PRODUCTS, FORECAST_DATA, ALERTS, NOTIF_HISTORY
+// ui.js: UI utilities, chart functions, page navigation
+// auth.js: User management functions
 
-const PRODUCTS = [
-  { id:1, name:'Bluetooth Speaker', sku:'BT-SPK-001', cat:'Electronics', stock:12, reorder:8, price:49.99, supplier:'SoundTech Ltd' },
-  { id:2, name:'USB-C Charger 65W', sku:'CH-USB-065', cat:'Electronics', stock:5, reorder:10, price:29.99, supplier:'PowerCore Inc' },
-  { id:3, name:'Laptop Stand Adj.', sku:'LS-ADJ-002', cat:'Accessories', stock:18, reorder:5, price:39.99, supplier:'ErgoDesign' },
-  { id:4, name:'Wireless Mouse', sku:'MS-WL-003', cat:'Electronics', stock:3, reorder:12, price:24.99, supplier:'PeriphTech' },
-  { id:5, name:'Mechanical Keyboard', sku:'KB-MCH-004', cat:'Electronics', stock:22, reorder:8, price:89.99, supplier:'KeyCraft' },
-  { id:6, name:'Monitor Arm', sku:'MA-DSK-005', cat:'Furniture', stock:0, reorder:4, price:69.99, supplier:'ErgoDesign' },
-  { id:7, name:'Notebook A4 Pack', sku:'NB-A4-006', cat:'Stationery', stock:45, reorder:15, price:8.99, supplier:'PaperWorld' },
-  { id:8, name:'HDMI 2.1 Cable', sku:'CB-HDM-007', cat:'Accessories', stock:7, reorder:10, price:14.99, supplier:'CablePro' },
-  { id:9, name:'USB Hub 7-Port', sku:'HB-USB-008', cat:'Electronics', stock:9, reorder:10, price:34.99, supplier:'PeriphTech' },
-  { id:10, name:'Ergonomic Chair', sku:'CH-ERG-009', cat:'Furniture', stock:2, reorder:3, price:299.99, supplier:'ErgoDesign' },
-  { id:11, name:'Desk Mat XL', sku:'DM-XL-010', cat:'Accessories', stock:31, reorder:10, price:19.99, supplier:'DeskPro' },
-  { id:12, name:'Webcam 4K', sku:'WC-4K-011', cat:'Electronics', stock:6, reorder:8, price:79.99, supplier:'VisionTech' },
-];
+// ======= MODULE REFERENCES =======
+// This file integrates all modules and contains inventory, forecast, alerts, and reports logic
 
-// ======= NAVIGATION =======
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  document.querySelector(`[data-page="${name}"]`).classList.add('active');
-  const titles = { overview:'Overview', users:'User Management', inventory:'Inventory', forecast:'Demand Forecasting', alerts:'Alerts', reports:'Reports & Analytics' };
-  document.getElementById('pageTitle').textContent = titles[name] || name;
-  document.getElementById('breadcrumb').textContent = 'Dashboard / ' + (titles[name] || name);
-  if (name === 'forecast') initForecastCharts();
-  if (name === 'reports') initReportCharts();
-}
+// ======= CHART INSTANCES =======
+let forecastChartInst;
 
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('collapsed');
-  document.getElementById('dashMain').style.marginLeft =
-    document.getElementById('sidebar').classList.contains('collapsed') ? '60px' : 'var(--sidebar-w)';
-}
-
-// ======= TOAST =======
-function showToast(msg, type='success') {
-  const icons = { success:'✓', error:'✕', info:'ℹ' };
-  const t = document.createElement('div');
-  t.className = `toast ${type}`;
-  t.innerHTML = `<div class="toast-icon">${icons[type]||'ℹ'}</div><span class="toast-msg">${msg}</span>`;
-  document.getElementById('toastContainer').appendChild(t);
-  setTimeout(() => t.remove(), 3200);
-}
-
-// ======= KPI COUNTER =======
-function animateCounters() {
-  document.querySelectorAll('.kpi-val[data-target]').forEach(el => {
-    const target = parseInt(el.dataset.target);
-    const prefix = el.dataset.prefix || '';
-    const suffix = el.dataset.suffix || '';
-    let cur = 0;
-    const isDecimal = suffix === '%' && target > 100;
-    const step = Math.ceil(target / 60);
-    const timer = setInterval(() => {
-      cur = Math.min(cur + step, target);
-      if (isDecimal) {
-        el.textContent = prefix + (cur / 10).toFixed(1) + suffix;
-      } else {
-        el.textContent = prefix + (cur >= 1000 ? (cur/1000).toFixed(cur>=10000?0:1)+'K' : cur) + suffix;
-      }
-      if (cur >= target) clearInterval(timer);
-    }, 16);
-  });
-}
-
-// ======= OVERVIEW CHARTS =======
-let demandChartInst, donutInst;
-
-function initOverview() {
-  renderCategoryBars();
-  renderActivityFeed();
-  renderMLStatus();
-  initDemandChart(30);
-  initDonutChart();
-  animateCounters();
-}
-
-function initDemandChart(days) {
-  const ctx = document.getElementById('demandChart').getContext('2d');
-  if (demandChartInst) demandChartInst.destroy();
-  const labels = Array.from({length:days}, (_,i) => {
-    const d = new Date(); d.setDate(d.getDate() - (days-1-i));
-    return d.toLocaleDateString('en',{month:'short',day:'numeric'});
-  });
-  const actual = labels.map((_,i) => Math.round(80 + 40*Math.sin(i/4) + Math.random()*20));
-  const forecast = actual.map(v => Math.round(v * (0.92 + Math.random()*0.16)));
-  const upper = forecast.map(v => v + Math.round(8 + Math.random()*6));
-  const lower = forecast.map(v => v - Math.round(8 + Math.random()*6));
-  demandChartInst = new Chart(ctx, {
-    data: {
-      labels,
-      datasets: [
-        { type:'line', label:'Actual Demand', data:actual, borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.08)', tension:0.4, borderWidth:2.5, pointRadius:0, pointHoverRadius:5, fill:false },
-        { type:'line', label:'ML Forecast', data:forecast, borderColor:'#8b5cf6', borderDash:[5,3], tension:0.4, borderWidth:2, pointRadius:0, fill:false },
-        { type:'line', label:'Upper Bound', data:upper, borderColor:'rgba(139,92,246,0.2)', backgroundColor:'rgba(139,92,246,0.06)', tension:0.4, borderWidth:1, pointRadius:0, fill:'+1' },
-        { type:'line', label:'Lower Bound', data:lower, borderColor:'rgba(139,92,246,0.2)', tension:0.4, borderWidth:1, pointRadius:0, fill:false }
-      ]
-    },
-    options: { ...chartDefaults(), plugins:{ ...chartDefaults().plugins, legend:{ display:true, position:'top', labels:{ color:'#9ba3b8', font:{size:11}, boxWidth:24 } } } }
-  });
-}
-
-function updateDemandChart(v) { initDemandChart(parseInt(v)); }
-
-function initDonutChart() {
-  const ctx = document.getElementById('stockDonut').getContext('2d');
-  if (donutInst) donutInst.destroy();
-  const data = { Normal:198, 'Low Stock':18, Critical:5, 'Out of Stock':3 };
-  const colors = ['#3b82f6','#f59e0b','#ef4444','#6b7280'];
-  donutInst = new Chart(ctx, {
-    type:'doughnut',
-    data:{ labels:Object.keys(data), datasets:[{ data:Object.values(data), backgroundColor:colors, borderWidth:0, hoverOffset:6 }] },
-    options:{ cutout:'72%', plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c) => ` ${c.label}: ${c.raw} items`}} }, animation:{animateRotate:true} }
-  });
-  const leg = document.getElementById('donutLegend');
-  leg.innerHTML = Object.entries(data).map(([ k,v ],i) =>
-    `<div class="legend-item"><div class="legend-dot" style="background:${colors[i]}"></div><span>${k}</span><span style="margin-left:auto;font-weight:600;color:var(--text)">${v}</span></div>`
-  ).join('');
-}
-
-function renderCategoryBars() {
-  const cats = [
-    { name:'Electronics', val:82, color:'#3b82f6' },
-    { name:'Accessories', val:67, color:'#8b5cf6' },
-    { name:'Furniture', val:45, color:'#10b981' },
-    { name:'Stationery', val:91, color:'#f59e0b' },
-  ];
-  document.getElementById('categoryBars').innerHTML = cats.map(c => `
-    <div class="cat-bar-item">
-      <div class="cat-bar-label"><span>${c.name}</span><span>${c.val}%</span></div>
-      <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${c.val}%;background:${c.color}"></div></div>
-    </div>`).join('');
-}
-
-function renderActivityFeed() {
-  const feed = [
-    { text:'USB-C Charger stock fell below reorder level', time:'2 min ago', color:'#ef4444' },
-    { text:'Wireless Mouse reordered: 50 units via PeriphTech', time:'18 min ago', color:'#10b981' },
-    { text:'ML model retrained — accuracy improved to 98.4%', time:'1 hour ago', color:'#8b5cf6' },
-    { text:'Monitor Arm flagged as out of stock', time:'3 hours ago', color:'#f59e0b' },
-    { text:'Monthly report generated and emailed', time:'5 hours ago', color:'#3b82f6' },
-  ];
-  document.getElementById('activityFeed').innerHTML = feed.map(f => `
-    <div class="activity-item">
-      <div class="act-dot" style="background:${f.color}"></div>
-      <div><div class="act-text">${f.text}</div><div class="act-time">${f.time}</div></div>
-    </div>`).join('');
-}
-
-function renderMLStatus() {
-  const models = [
-    { name:'LSTM Demand Model', acc:'98.4%', status:'Running', dot:'green' },
-    { name:'ARIMA Baseline', acc:'94.1%', status:'Running', dot:'green' },
-    { name:'Prophet Seasonal', acc:'96.2%', status:'Retraining', dot:'orange' },
-    { name:'Ensemble (Final)', acc:'98.7%', status:'Active', dot:'blue' },
-  ];
-  document.getElementById('mlStatusList').innerHTML = models.map(m => `
-    <div class="ml-status-item">
-      <div class="ml-dot ${m.dot}"></div>
-      <span class="ml-name">${m.name}</span>
-      <span class="ml-acc">${m.acc}</span>
-      <span class="ml-badge-sm ${m.status==='Retraining'?'warn':'ok'}">${m.status}</span>
-    </div>`).join('');
-}
-
-// ======= USER MANAGEMENT =======
-let filteredUsers = [...USERS];
-let editingUserId = null;
-
-function renderUserTable() {
-  const tbody = document.getElementById('userTableBody');
-  tbody.innerHTML = filteredUsers.map(u => `
-    <tr>
-      <td><input type="checkbox" class="row-check"></td>
-      <td><div class="user-cell">
-        <div class="uc-avatar" style="background:${u.avatar}">${u.name[0]}</div>
-        <div><div class="uc-name">${u.name}</div><div class="uc-email">${u.email}</div></div>
-      </div></td>
-      <td><span class="badge ${u.role==='Admin'?'badge-purple':u.role==='Manager'?'badge-blue':'badge-gray'}">${u.role}</span></td>
-      <td>${u.dept}</td>
-      <td style="color:var(--text2)">${u.lastLogin}</td>
-      <td><span class="badge ${u.status==='active'?'badge-green':'badge-gray'}">${u.status}</span></td>
-      <td>
-        <div style="display:flex;gap:4px">
-          <button class="btn-icon" onclick="editUser(${u.id})" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="btn-icon danger" onclick="deleteUser(${u.id})" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
-        </div>
-      </td>
-    </tr>`).join('');
-  renderUserPagination();
-}
-
-function filterUsers() {
-  const q = document.getElementById('userSearch').value.toLowerCase();
-  const role = document.getElementById('roleFilter').value;
-  const status = document.getElementById('statusFilterU').value;
-  filteredUsers = USERS.filter(u =>
-    (u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) &&
-    (role === 'all' || u.role.toLowerCase() === role) &&
-    (status === 'all' || u.status === status)
-  );
-  renderUserTable();
-}
-
-function renderUserPagination() {
-  document.getElementById('userPagination').innerHTML = [1,2,3].map((n,i) =>
-    `<button class="pg-btn${i===0?' active':''}">${n}</button>`).join('') +
-    '<button class="pg-btn">›</button>';
-}
-
-function toggleSelectAll() {
-  document.querySelectorAll('.row-check').forEach(c => c.checked = document.getElementById('selectAll').checked);
-}
-
-function openUserModal(id=null) {
-  editingUserId = id;
-  document.getElementById('modalTitle').textContent = id ? 'Edit User' : 'Add New User';
-  if (!id) { ['uName','uEmail'].forEach(f => document.getElementById(f).value = ''); }
-  document.getElementById('userModal').classList.add('open');
-}
-
-function closeUserModal() { document.getElementById('userModal').classList.remove('open'); }
-
-function editUser(id) {
-  const u = USERS.find(x => x.id===id);
-  document.getElementById('uName').value = u.name;
-  document.getElementById('uEmail').value = u.email;
-  document.getElementById('uRole').value = u.role;
-  document.getElementById('uDept').value = u.dept;
-  openUserModal(id);
-}
-
-function deleteUser(id) {
-  const idx = USERS.findIndex(x => x.id===id);
-  if (idx > -1) { USERS.splice(idx,1); filteredUsers = [...USERS]; renderUserTable(); showToast('User removed successfully'); }
-}
-
-function saveUser() {
-  const name = document.getElementById('uName').value.trim();
-  const email = document.getElementById('uEmail').value.trim();
-  if (!name || !email) { showToast('Please fill all required fields','error'); return; }
-  if (editingUserId) {
-    const u = USERS.find(x => x.id===editingUserId);
-    u.name=name; u.email=email; u.role=document.getElementById('uRole').value; u.dept=document.getElementById('uDept').value;
-    showToast('User updated successfully');
-  } else {
-    USERS.unshift({ id:Date.now(), name, email, role:document.getElementById('uRole').value, dept:document.getElementById('uDept').value, lastLogin:'Just now', status:'active', avatar:'#3b82f6' });
-    showToast('User added successfully');
-  }
-  filteredUsers = [...USERS]; renderUserTable(); closeUserModal();
-}
-
-// ======= INVENTORY =======
+// ======= INVENTORY MANAGEMENT =======
 let filteredProducts = [...PRODUCTS];
-
-function getStockStatus(p) {
-  if (p.stock === 0) return 'critical';
-  if (p.stock < p.reorder) return 'low';
-  return 'normal';
-}
-
-function getStockBadge(p) {
-  const s = getStockStatus(p);
-  if (s === 'critical') return '<span class="badge badge-red">Out of Stock</span>';
-  if (s === 'low') return '<span class="badge badge-orange">Low Stock</span>';
-  return '<span class="badge badge-green">Normal</span>';
-}
-
-function getForecastBadge(p) {
-  const forecasts = { 1:'↑ High', 2:'↓ Low', 3:'→ Stable', 4:'↑↑ Surge', 5:'→ Stable', 6:'→ Stable', 7:'↑ High', 8:'↓ Low', 9:'↑ Moderate', 10:'→ Stable', 11:'→ Stable', 12:'↑ High' };
-  const f = forecasts[p.id] || '→ Stable';
-  const cl = f.includes('↑')? 'badge-green' : f.includes('↓')? 'badge-red' : 'badge-gray';
-  return `<span class="badge ${cl}">${f}</span>`;
-}
 
 function renderInventoryTable() {
   document.getElementById('invTableBody').innerHTML = filteredProducts.map(p => {
@@ -356,15 +84,6 @@ function saveProduct() {
 }
 
 // ======= FORECAST =======
-let forecastChartInst;
-
-const FORECAST_DATA = {
-  0:{ name:'Bluetooth Speaker', acc:98.4, mae:3.2, rmse:4.1, mape:3.8, pred30:142, stock:12 },
-  1:{ name:'USB-C Charger', acc:96.1, mae:4.8, rmse:6.2, mape:5.1, pred30:210, stock:5 },
-  2:{ name:'Laptop Stand', acc:97.8, mae:2.9, rmse:3.8, mape:3.2, pred30:88, stock:18 },
-  3:{ name:'Wireless Mouse', acc:95.3, mae:5.1, rmse:6.8, mape:5.9, pred30:178, stock:3 },
-  4:{ name:'Mechanical Keyboard', acc:98.1, mae:3.6, rmse:4.4, mape:4.0, pred30:64, stock:22 },
-};
 
 function initForecastCharts() {
   updateForecast();
@@ -457,19 +176,6 @@ function renderForecastTable() {
 }
 
 // ======= ALERTS =======
-const ALERTS = [
-  { id:1, type:'critical', title:'Out of Stock: Monitor Arm', desc:'SKU MA-DSK-005 has 0 units. Immediate reorder required.', time:'5 min ago', icon:'⚠' },
-  { id:2, type:'critical', title:'Critical Low: Wireless Mouse', desc:'Only 3 units remain. Below critical threshold of 5.', time:'12 min ago', icon:'⚠' },
-  { id:3, type:'warning', title:'Low Stock: USB-C Charger 65W', desc:'5 units remain, reorder level is 10. Forecast shows high demand.', time:'30 min ago', icon:'◉' },
-  { id:4, type:'warning', title:'Demand Spike Detected', desc:'Bluetooth Speaker demand 35% above ML forecast this week.', time:'1 hour ago', icon:'↑' },
-  { id:5, type:'info', title:'ML Model Retrained', desc:'Prophet seasonal model updated. Accuracy improved by 1.2%.', time:'2 hours ago', icon:'ℹ' },
-];
-
-const NOTIF_HISTORY = [
-  { type:'resolved', title:'Laptop Stand Restocked', desc:'50 units received from ErgoDesign supplier.', time:'Yesterday, 14:32', icon:'✓' },
-  { type:'resolved', title:'Auto PO Created', desc:'Purchase order #PO-2024-089 sent to PowerCore Inc.', time:'Yesterday, 11:15', icon:'✓' },
-  { type:'info', title:'Weekly Report Generated', desc:'Inventory report for Week 15 is ready for download.', time:'Mon, 09:00', icon:'ℹ' },
-];
 
 function initAlerts() {
   renderAlerts();
@@ -653,23 +359,18 @@ function renderMLInsights() {
     </div>`).join('');
 }
 
-// ======= CHART DEFAULTS =======
-function chartDefaults() {
-  return {
-    responsive:true,
-    maintainAspectRatio:false,
-    plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1e2330', titleColor:'#eef0f6', bodyColor:'#9ba3b8', borderColor:'rgba(255,255,255,0.1)', borderWidth:1, padding:12 } },
-    scales:{
-      x:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#9ba3b8',font:{size:11}} },
-      y:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#9ba3b8',font:{size:11}} }
-    }
-  };
-}
 
-// ======= INIT =======
-window.addEventListener('DOMContentLoaded', () => {
-  initOverview();
-  renderUserTable();
-  renderInventoryTable();
-  initAlerts();
+// ======= INITIALIZATION =======
+window.addEventListener('DOMContentLoaded', async () => {
+  // Initialize data from MongoDB
+  const dataLoaded = await initializeDataFromMongoDB();
+  
+  if (dataLoaded) {
+    initOverview();
+    renderUserTable();
+    renderInventoryTable();
+    initAlerts();
+  } else {
+    showToast('Error loading data from MongoDB', 'error');
+  }
 });
