@@ -13,7 +13,6 @@ try:
     print("Connected to MongoDB successfully")
 except Exception as e:
     print(f"Error connecting to MongoDB: {e}")
-
 # ======= ROUTES =======
 @app.route('/')
 def dashboard():
