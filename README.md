@@ -1,4 +1,4 @@
- Smart Inventory Management - Complete Setup Summary
+[ Smart Inventory Management - Complete Setup Summary
 ✅ What's Been Completed
 Your dashboard is now fully integrated with MongoDB and connected to your CSV data. Here's what was done:
 
@@ -244,3 +244,4 @@ python app.py
 Then visit: http://localhost:5000 🎉
 
 Happy Inventory Management! 🚀📊
+](https://github.com/Rithesh12-cs/SmartInventoryManagement/edit/main/README.md)
