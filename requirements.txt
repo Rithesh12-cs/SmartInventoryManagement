@@ -1,4 +1,12 @@
-flask
-pymongo
+# Data Manipulation & Analysis
 pandas
-python-dotenv
+numpy
+joblib
+# Visualization
+matplotlib
+
+# Machine Learning & Modeling
+scikit-learn
+keras
+statsmodels
+prophet

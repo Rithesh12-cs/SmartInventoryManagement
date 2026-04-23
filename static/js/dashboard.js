@@ -83,6 +83,119 @@ function saveProduct() {
   filteredProducts=[...PRODUCTS]; renderInventoryTable(); closeProductModal(); showToast('Product saved successfully');
 }
 
+let currentUser = null;
+
+async function fetchCurrentUser() {
+  try {
+    const response = await fetch('/current-user');
+    if (!response.ok) return null;
+    const payload = await response.json();
+    currentUser = payload.user;
+    showManagerUploadSection();
+    if (currentUser) {
+      document.querySelectorAll('.user-role-badge').forEach(el => { el.textContent = currentUser.role; });
+    }
+    return currentUser;
+  } catch (error) {
+    console.error('Unable to load current user', error);
+    return null;
+  }
+}
+
+function showManagerUploadSection() {
+  const uploadSection = document.getElementById('managerUploadSection');
+  if (!uploadSection) return;
+  uploadSection.style.display = currentUser && currentUser.role === 'manager' ? 'block' : 'none';
+}
+
+function renderPredictionOutput(result) {
+  const body = document.getElementById('predictionOutputBody');
+  if (!body) return;
+  if (!result) {
+    body.innerHTML = '<tr><td colspan="3" style="color:var(--text3);text-align:center">Upload CSV to generate predictions</td></tr>';
+    return;
+  }
+  body.innerHTML = `
+    <tr><td>ARIMA</td><td>${result.summary.arima_first.toFixed(1)}</td><td>${result.summary.arima_total.toFixed(1)}</td></tr>
+    <tr><td>Prophet</td><td>${result.summary.prophet_first.toFixed(1)}</td><td>${result.summary.prophet_total.toFixed(1)}</td></tr>
+  `;
+}
+
+function renderResultsTable(results) {
+  const body = document.getElementById('resultsTableBody');
+  if (!body) return;
+  if (!results || !results.length) {
+    body.innerHTML = '<tr><td colspan="6" style="color:var(--text3);text-align:center">No prediction results available yet.</td></tr>';
+    return;
+  }
+  body.innerHTML = results.map(r => `
+    <tr>
+      <td>${new Date(r.created_at).toLocaleString()}</td>
+      <td>${r.user_email}</td>
+      <td>${r.horizon}d</td>
+      <td>${r.arima_total ? r.arima_total.toFixed(1) : '—'}</td>
+      <td>${r.prophet_total ? r.prophet_total.toFixed(1) : '—'}</td>
+      <td>${r.uploaded_file || 'CSV upload'}</td>
+    </tr>
+  `).join('');
+}
+
+async function submitCsv() {
+  const fileInput = document.getElementById('csvFile');
+  const horizonSelect = document.getElementById('predictionHorizon');
+  const status = document.getElementById('uploadStatus');
+
+  if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+    showToast('Please select a CSV file before predicting.', 'error');
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const horizon = parseInt(horizonSelect.value || '30', 10);
+  status.textContent = 'Uploading CSV and running models...';
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const uploadResp = await fetch('/upload-csv', { method: 'POST', body: formData });
+    const uploadData = await uploadResp.json();
+    if (!uploadResp.ok) {
+      status.textContent = uploadData.message || 'Upload failed';
+      return;
+    }
+
+    const predictResp = await fetch('/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ upload_id: uploadData.upload_id, horizon })
+    });
+    const predictData = await predictResp.json();
+    if (!predictResp.ok) {
+      status.textContent = predictData.message || 'Prediction failed';
+      return;
+    }
+
+    status.textContent = `Predictions generated for ${horizon} days.`;
+    renderPredictionOutput(predictData.result);
+    fetchResults();
+  } catch (error) {
+    status.textContent = 'Unable to submit CSV. Please try again.';
+    console.error('Prediction error', error);
+  }
+}
+
+async function fetchResults() {
+  try {
+    const response = await fetch('/results');
+    if (!response.ok) throw new Error('Unable to load results');
+    const results = await response.json();
+    renderResultsTable(results);
+  } catch (error) {
+    console.error('Failed to fetch results', error);
+  }
+}
+
 // ======= FORECAST =======
 
 function initForecastCharts() {
@@ -364,6 +477,8 @@ function renderMLInsights() {
 window.addEventListener('DOMContentLoaded', async () => {
   // Initialize data from MongoDB
   const dataLoaded = await initializeDataFromMongoDB();
+  await fetchCurrentUser();
+  await fetchResults();
   
   if (dataLoaded) {
     initOverview();
