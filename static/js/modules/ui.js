@@ -145,10 +145,8 @@ function renderActivityFeed() {
 
 function renderMLStatus() {
   const models = [
-    { name:'LSTM Demand Model', acc:'98.4%', status:'Running', dot:'green' },
     { name:'ARIMA Baseline', acc:'94.1%', status:'Running', dot:'green' },
     { name:'Prophet Seasonal', acc:'96.2%', status:'Retraining', dot:'orange' },
-    { name:'Ensemble (Final)', acc:'98.7%', status:'Active', dot:'blue' },
   ];
   document.getElementById('mlStatusList').innerHTML = models.map(m => `
     <div class="ml-status-item">

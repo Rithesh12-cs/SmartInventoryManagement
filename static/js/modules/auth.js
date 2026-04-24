@@ -1,3 +1,75 @@
+// ======= AUTHENTICATION MODULE =======
+// This module handles all auth-related operations for the dashboard
+
+const AUTH = {
+    user: null,
+    isAuthenticated: false,
+    token: null,
+
+    // Initialize auth on page load
+    async init() {
+        try {
+            const response = await fetch('/api/auth/check');
+            const data = await response.json();
+
+            if (data.authenticated) {
+                this.isAuthenticated = true;
+                this.user = data.user;
+                console.log('✓ User authenticated:', this.user.email);
+                return true;
+            } else {
+                console.log('✗ User not authenticated');
+                window.location.href = '/login';
+                return false;
+            }
+        } catch (error) {
+            console.error('Auth check failed:', error);
+            window.location.href = '/login';
+            return false;
+        }
+    },
+
+    // Get current user profile
+    async getProfile() {
+        try {
+            const response = await fetch('/api/auth/profile');
+            const data = await response.json();
+
+            if (data.success) {
+                this.user = data.user;
+                return data.user;
+            }
+        } catch (error) {
+            console.error('Failed to fetch profile:', error);
+        }
+        return null;
+    },
+
+    // Logout user
+    async logout() {
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            this.isAuthenticated = false;
+            this.user = null;
+            window.location.href = '/login';
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    },
+
+    // Check if user has specific role
+    hasRole(role) {
+        return this.user && this.user.role === role;
+    },
+
+    // Check if user has at least the given role
+    hasMinRole(role) {
+        const roleHierarchy = { viewer: 0, manager: 1, admin: 2 };
+        if (!this.user) return false;
+        return (roleHierarchy[this.user.role] || 0) >= (roleHierarchy[role] || 0);
+    }
+};
+
 // ======= USER MANAGEMENT =======
 // Initialize default users if empty
 if (!USERS || USERS.length === 0) {
@@ -6,6 +78,32 @@ if (!USERS || USERS.length === 0) {
     { id:2, name:'James Okafor', email:'james.okafor@nexstock.ai', role:'Manager', dept:'Procurement', lastLogin:'1 hour ago', status:'active', avatar:'#10b981' },
     { id:3, name:'Priya Patel', email:'priya.patel@nexstock.ai', role:'Manager', dept:'Sales', lastLogin:'3 hours ago', status:'active', avatar:'#8b5cf6' },
   ];
+}
+
+function handleLogout() {
+  if (confirm('Are you sure you want to log out?')) {
+    AUTH.logout();
+  }
+}
+
+function updateUserDisplay() {
+    const userNameEl = document.getElementById('userName');
+    const userEmailEl = document.getElementById('userEmail');
+    const userAvatarEl = document.getElementById('userAvatar');
+    const userRoleEl = document.getElementById('userRole');
+    const topbarAvatarEl = document.getElementById('topbarAvatar');
+    
+    if (userNameEl) userNameEl.textContent = AUTH.user ? AUTH.user.name : 'User';
+    if (userEmailEl) userEmailEl.textContent = AUTH.user ? AUTH.user.email : '';
+    if (userRoleEl) userRoleEl.textContent = AUTH.user ? AUTH.user.role : 'Viewer';
+    if (userAvatarEl) {
+        userAvatarEl.textContent = AUTH.user ? (AUTH.user.name || 'U')[0].toUpperCase() : 'U';
+        userAvatarEl.style.background = AUTH.user ? AUTH.user.avatar : '#3b82f6';
+    }
+    if (topbarAvatarEl) {
+        topbarAvatarEl.textContent = AUTH.user ? (AUTH.user.name || 'U')[0].toUpperCase() : 'U';
+        topbarAvatarEl.style.background = AUTH.user ? AUTH.user.avatar : '#3b82f6';
+    }
 }
 
 let filteredUsers = [...USERS];

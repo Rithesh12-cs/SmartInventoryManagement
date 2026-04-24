@@ -91,7 +91,9 @@ async function fetchCurrentUser() {
     if (!response.ok) return null;
     const payload = await response.json();
     currentUser = payload.user;
+    AUTH.user = payload.user;  // Set AUTH.user for consistency
     showManagerUploadSection();
+    updateUserDisplay();  // Update the sidebar profile
     if (currentUser) {
       document.querySelectorAll('.user-role-badge').forEach(el => { el.textContent = currentUser.role; });
     }
@@ -105,7 +107,7 @@ async function fetchCurrentUser() {
 function showManagerUploadSection() {
   const uploadSection = document.getElementById('managerUploadSection');
   if (!uploadSection) return;
-  uploadSection.style.display = currentUser && currentUser.role === 'manager' ? 'block' : 'none';
+  uploadSection.style.display = currentUser && (currentUser.role === 'manager' || currentUser.role === 'admin') ? 'block' : 'none';
 }
 
 function renderPredictionOutput(result) {
@@ -158,14 +160,14 @@ async function submitCsv() {
   formData.append('file', file);
 
   try {
-    const uploadResp = await fetch('/upload-csv', { method: 'POST', body: formData });
+    const uploadResp = await fetch('/api/upload', { method: 'POST', body: formData });
     const uploadData = await uploadResp.json();
     if (!uploadResp.ok) {
       status.textContent = uploadData.message || 'Upload failed';
       return;
     }
 
-    const predictResp = await fetch('/predict', {
+    const predictResp = await fetch('/api/predict', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ upload_id: uploadData.upload_id, horizon })
@@ -447,9 +449,8 @@ function initMLAccuracyChart() {
   new Chart(ctx, {
     type:'line',
     data:{ labels:weeks, datasets:[
-      { label:'LSTM', data:[96.1,96.8,97.2,97.0,97.9,98.1,98.4], borderColor:'#3b82f6', tension:0.4, borderWidth:2.5, pointRadius:4, fill:false },
       { label:'ARIMA', data:[92.4,92.8,93.1,93.5,93.8,94.0,94.1], borderColor:'#8b5cf6', tension:0.4, borderWidth:2, pointRadius:4, fill:false },
-      { label:'Ensemble', data:[96.8,97.3,97.8,97.6,98.2,98.5,98.7], borderColor:'#10b981', tension:0.4, borderWidth:2.5, pointRadius:4, fill:false },
+      { label:'Prophet', data:[94.2,94.5,94.9,95.1,95.4,95.7,95.9], borderColor:'#10b981', tension:0.4, borderWidth:2.5, pointRadius:4, fill:false },
     ]},
     options:{ ...chartDefaults(), plugins:{ ...chartDefaults().plugins, legend:{ display:true, position:'top', labels:{ color:'#9ba3b8', font:{size:11}, boxWidth:24 } } } }
   });
@@ -457,7 +458,7 @@ function initMLAccuracyChart() {
 
 function renderMLInsights() {
   const insights = [
-    { title:'Ensemble Model', val:'98.7%', sub:'Overall accuracy this week', color:'var(--green)' },
+    { title:'Prophet Model', val:'95.9%', sub:'Latest weekly accuracy', color:'var(--green)' },
     { title:'Predictions Made', val:'1,248', sub:'Across all SKUs (7-day)', color:'var(--blue)' },
     { title:'Anomalies Detected', val:'7', sub:'Unusual demand patterns', color:'var(--orange)' },
     { title:'Auto Reorders Triggered', val:'12', sub:'Based on ML forecasts', color:'var(--purple)' },

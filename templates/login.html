@@ -1,98 +1,735 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NexStock AI — Login</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Inventory Management - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1e40af;
+            --primary-light: #dbeafe;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --text: var(--gray-900);
+            --text2: var(--gray-600);
+            --bg: #ffffff;
+            --bg-secondary: var(--gray-50);
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text);
+        }
+
+        .auth-container {
+            display: flex;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-wrapper {
+            width: 100%;
+            max-width: 420px;
+            background: var(--bg);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .auth-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .auth-content {
+            padding: 40px 30px;
+        }
+
+        /* TAB NAVIGATION */
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            color: var(--text2);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .auth-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .auth-tab:hover {
+            color: var(--text);
+        }
+
+        /* FORM CONTENT */
+        .auth-form-container {
+            display: none;
+        }
+
+        .auth-form-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: var(--bg);
+            color: var(--text);
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: var(--gray-400);
+        }
+
+        .form-error {
+            font-size: 12px;
+            color: var(--danger);
+            margin-top: 6px;
+            display: none;
+        }
+
+        .form-error.show {
+            display: block;
+        }
+
+        /* PASSWORD TOGGLE */
+        .password-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray-400);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+            transition: color 0.3s;
+        }
+
+        .password-toggle:hover {
+            color: var(--text2);
+        }
+
+        /* ROLE SELECTION */
+        .role-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-option {
+            position: relative;
+        }
+
+        .role-option input {
+            display: none;
+        }
+
+        .role-option label {
+            display: block;
+            padding: 12px;
+            border: 2px solid var(--gray-300);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .role-option input:checked + label {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* SUBMIT BUTTON */
+        .form-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .form-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .form-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* DIVIDER */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: var(--gray-400);
+            font-size: 12px;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-300);
+        }
+
+        .auth-divider span {
+            padding: 0 15px;
+        }
+
+        /* DEMO CREDENTIALS */
+        .demo-creds {
+            background: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 20px;
+            color: var(--gray-700);
+        }
+
+        .demo-creds strong {
+            color: var(--text);
+        }
+
+        .demo-creds-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .demo-cred-item {
+            margin: 6px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* TOAST NOTIFICATIONS */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: var(--bg);
+            border-left: 4px solid var(--primary);
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.3s ease-out;
+            min-width: 300px;
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.info {
+            border-left-color: var(--primary);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(400px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 480px) {
+            .auth-wrapper {
+                max-width: 100%;
+            }
+
+            .auth-header {
+                padding: 30px 20px;
+            }
+
+            .auth-header h1 {
+                font-size: 24px;
+            }
+
+            .auth-content {
+                padding: 30px 20px;
+            }
+
+            .role-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-<body class="auth-body">
-<div class="auth-scene">
-  <div class="auth-grid-bg"></div>
-  <div class="auth-orbs">
-    <div class="orb orb1"></div>
-    <div class="orb orb2"></div>
-    <div class="orb orb3"></div>
-  </div>
-  <div class="auth-left">
-    <div class="auth-left-content">
-      <div class="brand-mark">
-        <div class="brand-icon">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="2" y="2" width="11" height="11" rx="3" fill="white"/><rect x="15" y="2" width="11" height="11" rx="3" fill="white" opacity="0.5"/><rect x="2" y="15" width="11" height="11" rx="3" fill="white" opacity="0.5"/><rect x="15" y="15" width="11" height="11" rx="3" fill="white"/></svg>
+<body>
+    <div class="auth-container">
+        <div class="auth-wrapper">
+            <!-- HEADER -->
+            <div class="auth-header">
+                <h1>📊 NexStock</h1>
+                <p>Smart Inventory Management</p>
+            </div>
+
+            <!-- CONTENT -->
+            <div class="auth-content">
+                <!-- TABS -->
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+                    <button class="auth-tab" onclick="switchTab('signup')">Sign Up</button>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <div id="loginForm" class="auth-form-container active">
+                    <form id="loginFormElement">
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
+                            <div class="form-error" id="loginEmailError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Password</label>
+                            <div class="password-group">
+                                <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+                                <button type="button" class="password-toggle" onclick="toggleLoginPassword()">👁️</button>
+                            </div>
+                            <div class="form-error" id="loginPasswordError"></div>
+                        </div>
+
+                        <button type="submit" class="form-submit" id="loginSubmitBtn">Sign In</button>
+
+                        <div class="auth-divider">
+                            <span>Demo Credentials</span>
+                        </div>
+
+                        <div class="demo-creds">
+                            <div class="demo-creds-title">Try these accounts:</div>
+                            <div class="demo-cred-item"><strong>Admin:</strong> admin@nexstock.ai</div>
+                            <div class="demo-cred-item"><strong>Manager:</strong> manager@nexstock.ai</div>
+                            <div class="demo-cred-item"><strong>Viewer:</strong> viewer@nexstock.ai</div>
+                            <div class="demo-cred-item"><strong>Password:</strong> [Role]123! (e.g., Admin123!)</div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- SIGNUP FORM -->
+                <div id="signupForm" class="auth-form-container">
+                    <form id="signupFormElement">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="signupName" placeholder="Your Name" autocomplete="name">
+                            <div class="form-error" id="signupNameError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="signupEmail" placeholder="your@email.com" autocomplete="email">
+                            <div class="form-error" id="signupEmailError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Password</label>
+                            <div class="password-group">
+                                <input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password">
+                                <button type="button" class="password-toggle" onclick="toggleSignupPassword()">👁️</button>
+                            </div>
+                            <div class="form-error" id="signupPasswordError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Select Your Role</label>
+                            <div class="role-options">
+                                <div class="role-option">
+                                    <input type="radio" id="roleAdmin" name="signupRole" value="admin">
+                                    <label for="roleAdmin">👑<br>Admin</label>
+                                </div>
+                                <div class="role-option">
+                                    <input type="radio" id="roleManager" name="signupRole" value="manager" checked>
+                                    <label for="roleManager">📋<br>Manager</label>
+                                </div>
+                                <div class="role-option">
+                                    <input type="radio" id="roleViewer" name="signupRole" value="viewer">
+                                    <label for="roleViewer">👁️<br>Viewer</label>
+                                </div>
+                            </div>
+                            <div class="form-error" id="signupRoleError"></div>
+                        </div>
+
+                        <button type="submit" class="form-submit" id="signupSubmitBtn">Create Account</button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <span class="brand-name">NexStock<sup>AI</sup></span>
-      </div>
-      <div class="auth-hero">
-        <h1>Inventory intelligence, <em>supercharged</em> by ML</h1>
-        <p>Predict demand. Prevent stockouts. Maximize efficiency. All powered by real-time machine learning.</p>
-      </div>
-      <div class="auth-features">
-        <div class="af-item"><span class="af-dot"></span>ML Demand Forecasting</div>
-        <div class="af-item"><span class="af-dot"></span>Smart Reorder Automation</div>
-        <div class="af-item"><span class="af-dot"></span>Real-time Analytics</div>
-        <div class="af-item"><span class="af-dot"></span>Predictive Alerts</div>
-      </div>
-      <div class="auth-stat-row">
-        <div class="auth-stat"><span>98.4%</span><small>Forecast accuracy</small></div>
-        <div class="auth-stat"><span>3.2×</span><small>Less stockouts</small></div>
-        <div class="auth-stat"><span>40%</span><small>Cost reduction</small></div>
-      </div>
     </div>
-  </div>
-  <div class="auth-right">
-    <div class="auth-card">
-      <div class="auth-card-header">
-        <h2>Welcome back</h2>
-        <p>Sign in to your workspace</p>
-      </div>
-      <div class="auth-role-tabs">
-        <button class="role-tab active" data-role="admin">Admin</button>
-        <button class="role-tab" data-role="manager">Manager</button>
-        <button class="role-tab" data-role="viewer">Viewer</button>
-      </div>
-      <form id="loginForm" onsubmit="handleLogin(event)">
-        <div class="field">
-          <label>Email address</label>
-          <div class="field-wrap">
-            <svg class="field-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
-            <input id="email" type="email" placeholder="admin@nexstock.ai" required>
-          </div>
-        </div>
-        <div class="field">
-          <label>Password</label>
-          <div class="field-wrap">
-            <svg class="field-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <input id="password" type="password" placeholder="••••••••••" required>
-            <button type="button" class="toggle-pw" onclick="togglePw()">
-              <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="field-row">
-          <label class="checkbox-label"><input type="checkbox" id="remember"><span>Keep me signed in</span></label>
-          <a href="#" class="link-sm">Forgot password?</a>
-        </div>
-        <button type="submit" class="btn-signin">
-          <span>Sign in to dashboard</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </form>
-      <div class="auth-divider"><span>or continue with</span></div>
-      <div class="social-row">
-        <button class="social-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Google
-        </button>
-        <button class="social-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.09.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
-          GitHub
-        </button>
-      </div>
-      <p class="auth-signup">New to NexStock? <a href="#">Request access</a></p>
-    </div>
-  </div>
-</div>
-<script src="{{ url_for('static', filename='login.js') }}"></script>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script>
+        // ======= TAB SWITCHING =======
+        function switchTab(tab) {
+            document.querySelectorAll('.auth-form-container').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.auth-tab').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            document.getElementById(tab === 'login' ? 'loginForm' : 'signupForm').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // ======= PASSWORD TOGGLE =======
+        function toggleLoginPassword() {
+            const input = document.getElementById('loginPassword');
+            const btn = event.target;
+            input.type = input.type === 'password' ? 'text' : 'password';
+            btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+        }
+
+        function toggleSignupPassword() {
+            const input = document.getElementById('signupPassword');
+            const btn = event.target;
+            input.type = input.type === 'password' ? 'text' : 'password';
+            btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+        }
+
+        // ======= TOAST NOTIFICATIONS =======
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = { success: '✓', error: '✕', info: 'ℹ' };
+            toast.innerHTML = `<span>${icons[type] || 'ℹ'}</span> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        // ======= ERROR HANDLING =======
+        function showError(elementId, message) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.textContent = message;
+                el.classList.add('show');
+            }
+        }
+
+        function hideError(elementId) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.textContent = '';
+                el.classList.remove('show');
+            }
+        }
+
+        // ======= VALIDATION =======
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        function validateEmail(email) {
+            if (!email) return 'Email is required';
+            if (!emailRegex.test(email)) return 'Please enter a valid email address';
+            return '';
+        }
+
+        function validatePassword(password) {
+            if (!password) return 'Password is required';
+            if (password.length < 6) return 'Password must be at least 6 characters';
+            return '';
+        }
+
+        function validateName(name) {
+            if (!name) return 'Name is required';
+            if (name.length < 2) return 'Name must be at least 2 characters';
+            return '';
+        }
+
+        function validateRole(role) {
+            if (!role) return 'Please select a role';
+            return '';
+        }
+
+        const API_BASE = window.location.protocol === 'file:' ? 'http://127.0.0.1:5000' : window.location.origin;
+        if (window.location.protocol === 'file:') {
+            console.warn('This page is loaded from file://. Use http://127.0.0.1:5000/login with the Flask server running for best results.');
+        }
+
+        // ======= LOGIN HANDLER =======
+        document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            // Clear previous errors
+            hideError('loginEmailError');
+            hideError('loginPasswordError');
+
+            // Validate
+            const emailErr = validateEmail(email);
+            const passwordErr = validatePassword(password);
+
+            let isValid = true;
+            if (emailErr) {
+                showError('loginEmailError', emailErr);
+                isValid = false;
+            }
+            if (passwordErr) {
+                showError('loginPasswordError', passwordErr);
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            // Submit
+            const submitBtn = document.getElementById('loginSubmitBtn');
+            submitBtn.textContent = 'Signing In...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast('Login successful!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 500);
+                } else {
+                    showError('loginEmailError', result.message || 'Login failed');
+                    submitBtn.textContent = 'Sign In';
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Login fetch failed:', error);
+                showError('loginEmailError', 'Unable to connect to server');
+                submitBtn.textContent = 'Sign In';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // ======= SIGNUP HANDLER =======
+        document.getElementById('signupFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value.trim();
+            const role = document.querySelector('input[name="signupRole"]:checked')?.value || '';
+
+            // Clear previous errors
+            hideError('signupNameError');
+            hideError('signupEmailError');
+            hideError('signupPasswordError');
+            hideError('signupRoleError');
+
+            // Validate
+            const nameErr = validateName(name);
+            const emailErr = validateEmail(email);
+            const passwordErr = validatePassword(password);
+            const roleErr = validateRole(role);
+
+            let isValid = true;
+            if (nameErr) {
+                showError('signupNameError', nameErr);
+                isValid = false;
+            }
+            if (emailErr) {
+                showError('signupEmailError', emailErr);
+                isValid = false;
+            }
+            if (passwordErr) {
+                showError('signupPasswordError', passwordErr);
+                isValid = false;
+            }
+            if (roleErr) {
+                showError('signupRoleError', roleErr);
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            // Submit
+            const submitBtn = document.getElementById('signupSubmitBtn');
+            submitBtn.textContent = 'Creating Account...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, role })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast('Account created successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 500);
+                } else {
+                    showError('signupEmailError', result.message || 'Signup failed');
+                    submitBtn.textContent = 'Create Account';
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Signup fetch failed:', error);
+                showError('signupEmailError', 'Unable to connect to server');
+                submitBtn.textContent = 'Create Account';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // ======= DEMO QUICK LOGIN =======
+        function quickLogin(email, password) {
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('loginPassword').value = password;
+            showToast('Credentials filled! Click Sign In', 'info');
+        }
+    </script>
 </body>
 </html>

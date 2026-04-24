@@ -3,7 +3,7 @@
 <div class="page" id="page-forecast">
     <div class="page-intro">
       <h1>Demand Forecasting <span class="ml-badge">ML Powered</span></h1>
-      <p>LSTM + ARIMA ensemble model predicting future demand with 98.4% accuracy.</p>
+      <p>Demand forecasting using ARIMA and Prophet models for reliable stock planning.</p>
     </div>
     <div class="forecast-controls">
       <div class="fc-control">
@@ -26,10 +26,8 @@
         </select>
       </div>
       <div class="fc-control">
-        <label>ML Model</label>
+        <label>Forecast Method</label>
         <select id="forecastModel" onchange="updateForecast()">
-          <option value="ensemble">Ensemble (LSTM+ARIMA)</option>
-          <option value="lstm">LSTM Neural Net</option>
           <option value="arima">ARIMA</option>
           <option value="prophet">Prophet</option>
         </select>
@@ -66,8 +64,8 @@
         <div><h3>CSV Prediction Studio</h3><p>Upload your dataset and compare ARIMA vs Prophet output.</p></div>
       </div>
       <div class="prediction-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start">
-        <div id="managerUploadSection" style="display:none;" style="display:none;">
-          <div class="panel-subtitle">Manager only</div>
+        <div id="managerUploadSection" style="display:none;">
+          <div class="panel-subtitle">Admin/Manager only</div>
           <input type="file" id="csvFile" accept=".csv" style="width:100%;padding:12px 10px;border:1px solid var(--surface2);border-radius:10px;background:var(--surface);">
           <div style="margin-top:14px">
             <label for="predictionHorizon">Forecast horizon</label>
