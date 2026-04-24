@@ -1,7 +1,12 @@
+# Web framework
+Flask
+pymongo
+
 # Data Manipulation & Analysis
 pandas
 numpy
 joblib
+
 # Visualization
 matplotlib
 

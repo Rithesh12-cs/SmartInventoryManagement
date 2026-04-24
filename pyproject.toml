@@ -1,0 +1,21 @@
+[project]
+name = "smart-inventory-management"
+version = "0.1.0"
+description = "Smart inventory management dashboard with forecasting"
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.dependencies]
+Flask = "*"
+pymongo = "*"
+pandas = "*"
+numpy = "*"
+joblib = "*"
+matplotlib = "*"
+scikit-learn = "*"
+keras = "*"
+statsmodels = "*"
+prophet = "*"
+
+[project.scripts]
+app = "app_integrated:app"
