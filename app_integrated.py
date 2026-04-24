@@ -65,34 +65,6 @@ PROPHET_MODEL_PATH = os.path.join(MODEL_DIR, 'prophet_model.pkl')
 arima_model = None
 prophet_model = None
 
-
-def load_models():
-    global arima_model, prophet_model
-    if os.path.exists(ARIMA_MODEL_PATH):
-        try:
-            arima_model = joblib.load(ARIMA_MODEL_PATH)
-            print('✓ Loaded ARIMA model from models/arima_model.pkl')
-        except Exception as e:
-            print(f'✗ Failed to load ARIMA model: {e}')
-            train_arima_model()
-    else:
-        print('ARIMA model not found, training...')
-        train_arima_model()
-
-    if os.path.exists(PROPHET_MODEL_PATH):
-        try:
-            prophet_model = joblib.load(PROPHET_MODEL_PATH)
-            print('✓ Loaded Prophet model from models/prophet_model.pkl')
-        except Exception as e:
-            print(f'✗ Failed to load Prophet model: {e}')
-            train_prophet_model()
-    else:
-        print('Prophet model not found, training...')
-        train_prophet_model()
-
-
-load_models()
-
 def train_arima_model():
     global arima_model
     try:
@@ -108,13 +80,14 @@ def train_arima_model():
         model = ARIMA(train, order=(1, 1, 1))
         arima_model = model.fit()
 
-        # Save the model
+        os.makedirs(MODEL_DIR, exist_ok=True)
         joblib.dump(arima_model, ARIMA_MODEL_PATH)
         print('✓ Trained and saved ARIMA model')
         return True
     except Exception as e:
         print(f'✗ Failed to train ARIMA model: {e}')
         return False
+
 
 def train_prophet_model():
     global prophet_model
@@ -130,13 +103,53 @@ def train_prophet_model():
         model = Prophet()
         prophet_model = model.fit(daily_sales)
 
-        # Save the model
+        os.makedirs(MODEL_DIR, exist_ok=True)
         joblib.dump(prophet_model, PROPHET_MODEL_PATH)
         print('✓ Trained and saved Prophet model')
         return True
     except Exception as e:
         print(f'✗ Failed to train Prophet model: {e}')
         return False
+
+
+def load_models():
+    global arima_model, prophet_model
+    if os.path.exists(ARIMA_MODEL_PATH):
+        try:
+            arima_model = joblib.load(ARIMA_MODEL_PATH)
+            print('✓ Loaded ARIMA model from models/arima_model.pkl')
+        except Exception as e:
+            print(f'✗ Failed to load ARIMA model: {e}')
+            try:
+                os.remove(ARIMA_MODEL_PATH)
+            except OSError:
+                pass
+            if not train_arima_model():
+                print('✗ ARIMA model training failed after load failure')
+    else:
+        print('ARIMA model not found, training...')
+        if not train_arima_model():
+            print('✗ ARIMA model training failed')
+
+    if os.path.exists(PROPHET_MODEL_PATH):
+        try:
+            prophet_model = joblib.load(PROPHET_MODEL_PATH)
+            print('✓ Loaded Prophet model from models/prophet_model.pkl')
+        except Exception as e:
+            print(f'✗ Failed to load Prophet model: {e}')
+            try:
+                os.remove(PROPHET_MODEL_PATH)
+            except OSError:
+                pass
+            if not train_prophet_model():
+                print('✗ Prophet model training failed after load failure')
+    else:
+        print('Prophet model not found, training...')
+        if not train_prophet_model():
+            print('✗ Prophet model training failed')
+
+
+load_models()
 
 # In-memory storage for demo when MongoDB is not available
 demo_users = []
