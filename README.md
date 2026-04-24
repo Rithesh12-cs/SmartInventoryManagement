@@ -1,4 +1,4 @@
- Smart Inventory Management - Complete Setup Summary
+[[ Smart Inventory Management - Complete Setup Summary
 ✅ What's Been Completed
 Your dashboard is now fully integrated with MongoDB and connected to your CSV data. Here's what was done:
 
